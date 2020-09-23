@@ -1,0 +1,3 @@
+use bank_usecase
+
+select * from bank
