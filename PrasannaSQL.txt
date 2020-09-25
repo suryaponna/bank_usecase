@@ -31,24 +31,22 @@ select * from BankMaster where balance>=30000
 --2 ans 
 select Branchs.*,BankMaster.* from Branchs inner join BankMaster
 on Branchs.Branchcode=BankMaster.Branchcode
--- 3 ans
-select Customers from BankMaster where Transactions=(select max(w) from BankTransaction)
---4 ans
-select * from BankMaster where balance>any(select balance from BankMaster)
+
 --5 ans
+
 create nonclustered index i1 on Branchs(location)
---8
-create proc bmd(@Ano int)
+
+--7 ans
+drop view bal
+create view bal as select * from BANKMASTER where BALANCE>5000
+select * from bal
+--8 ans
+create proc bank(@ano int)
 as
 begin
-  declare @cn varchar(12),@c varchar(14),@bal int,@bcode int
-  SELECT @cn=cname,@c=city,@bal=balance,@bcode=branchcode from BranchMaster where Accno=@Ano
-  print @cn
-  print @c
-  print @bal
-  print @bcode
+select * from BankMaster where ACCNO=@ano
 end
-exec bmd
+	exec bank 25643784
 
 
 
