@@ -89,8 +89,26 @@ select * from transactions order by tdate
 --8 3 max bal customer details 
 select * from bank_master b where 2=(select count(distinct(balance)) from bank_master where balance > b.balance)
 
---9
+--10
+--10
+create function interest(@a int)
+returns float
+as
+begin
+declare @c float,@bal int,@j int
+SELECT @J=balance FROM bank_master WHERE acono=@a
+if  @j>=100000
+begin 
+set @c=@j*0.1
+--print 'Intrest calculated'
+end
+return @j+@c
+end
 
+declare @a int
+set @a= dbo.interest(201)
+print @a 
+update bank_master set balance=@a where acono =201
 
 select * from bank_master
 select * from branchs

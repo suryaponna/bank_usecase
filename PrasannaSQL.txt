@@ -89,3 +89,24 @@ end
 	select dbo.interest(100000,12,10)
 -- 11 ans
 select cname from BANKMASTER b where 2=(select count(distinct BALANCE) from BANKMASTER where BALANCE>b.BALANCE)
+
+
+--10
+alter function interest(@a int)
+returns float
+as
+begin
+declare @c float,@bal int,@j int
+SELECT @J=balance FROM bank_master WHERE acono=@a
+if  @j>=100000
+begin 
+set @c=@j*0.1
+--print 'Intrest calculated'
+end
+return @j+@c
+end
+
+declare @a int
+set @a= dbo.interest(201)
+print @a 
+update bank_master set balance=@a where acono =201
