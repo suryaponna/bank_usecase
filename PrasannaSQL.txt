@@ -1,4 +1,6 @@
---created by Prasanna
+create database PRASANNA_CASESTUDY
+use PRASANNA_CASESTUDY
+drop table BRANCHS
 CREATE TABLE BRANCHS(BRANCHCODE INT PRIMARY KEY ,  LOCATION VARCHAR(10) NOT NULL )
 --INSERTING VALUES INTO THE TABLE
 INSERT INTO BRANCHS VALUES(101 , 'WARANGAL')
@@ -31,11 +33,30 @@ select * from BankMaster where balance>=30000
 --2 ans 
 select Branchs.*,BankMaster.* from Branchs inner join BankMaster
 on Branchs.Branchcode=BankMaster.Branchcode
-
+-- 3 ans
+select 
+--4 ans
+select BANKMASTER.*,BRANCHS.* from BANKMASTER,BRANCHS where BRANCHS.BRANCHCODE=BANKMASTER.BRANCHCODE and BANKMASTER.BRANCHCODE in
+(select BRANCHCODE from BANKMASTER group by BRANCHCODE having sum(balance)>10000)
 --5 ans
-
 create nonclustered index i1 on Branchs(location)
-
+--6 ans
+DROP TRIGGER T4
+CREATE TRIGGER T4 ON BANKTRANSACTION 
+for insert
+AS
+BEGIN
+insert into BANKTRANSACTION select Accno,ttype,tdate,amt 
+end
+	insert into BANKTRANSACTION(Accno,ttype,tdate,amt) values(256437860,'w',25-09-2020,1000000)
+IF @TTYPE='D'
+UPDATE BANKMASTER SET BALANCE=BALANCE +500 WHERE ACCNO=@ACCNO
+ELSE
+UPDATE BANKMASTER SET BALANCE=BALANCE -500 WHERE ACCNO=@ACCNO
+CLOSE C1
+DEALLOCATE C1
+END
+SELECT * FROM BANKMASTER
 --7 ans
 drop view bal
 create view bal as select * from BANKMASTER where BALANCE>5000
@@ -47,11 +68,24 @@ begin
 select * from BankMaster where ACCNO=@ano
 end
 	exec bank 25643784
+--9 ans
+select * from BANKTRANSACTION order by TDATE 
 --10 ans
-select * from BANKTRANSACTION order by TDATE   
+drop function interest
+create function interest(@a int,@b int,@i int)
+returns float
+as
+begin
+declare @c float,@bal int,@j int
+SELECT @J=COUNT(*) FROM BANKMASTER WHERE BALANCE=@bal
+if  @j>100000
+begin 
+set @c=@a*@b*@i/100
+--print 'Intrest calculated'
+end
+return @c
+update BANKMASTER set BALANCE=BALANCE+@c where BALANCE=@bal
+end
+	select dbo.interest(100000,12,10)
 -- 11 ans
 select cname from BANKMASTER b where 2=(select count(distinct BALANCE) from BANKMASTER where BALANCE>b.BALANCE)
-
-
-
-
