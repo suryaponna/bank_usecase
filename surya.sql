@@ -90,6 +90,8 @@ select * from transactions order by tdate
 select * from bank_master b where 2=(select count(distinct(balance)) from bank_master where balance > b.balance)
 
 --9
+
+
 select * from bank_master
 select * from bank_master
 select * from transactions
