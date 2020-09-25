@@ -93,12 +93,4 @@ select * from bank_master b where 2=(select count(distinct(balance)) from bank_m
 
 
 select * from bank_master
-select * from bank_master
-select * from transactions
-select * from branchs
-
- 
-
-
-select * from bank_master
 select * from branchs
