@@ -47,6 +47,10 @@ begin
 select * from BankMaster where ACCNO=@ano
 end
 	exec bank 25643784
+--10 ans
+select * from BANKTRANSACTION order by TDATE   
+-- 11 ans
+select cname from BANKMASTER b where 2=(select count(distinct BALANCE) from BANKMASTER where BALANCE>b.BALANCE)
 
 
 
