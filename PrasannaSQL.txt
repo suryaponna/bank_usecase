@@ -34,7 +34,10 @@ select * from BankMaster where balance>=30000
 select Branchs.*,BankMaster.* from Branchs inner join BankMaster
 on Branchs.Branchcode=BankMaster.Branchcode
 -- 3 ans
-select 
+select cname from BANKMASTER where ACCNO=
+(select ACCNO from BANKTRANSACTION where BALANCE=
+(select max('w') from BANKTRANSACTION where BALANCE
+in(select ACCNO from BANKTRANSACTION group by ACCNO)))
 --4 ans
 select BANKMASTER.*,BRANCHS.* from BANKMASTER,BRANCHS where BRANCHS.BRANCHCODE=BANKMASTER.BRANCHCODE and BANKMASTER.BRANCHCODE in
 (select BRANCHCODE from BANKMASTER group by BRANCHCODE having sum(balance)>10000)
@@ -71,33 +74,12 @@ end
 --9 ans
 select * from BANKTRANSACTION order by TDATE 
 --10 ans
-drop function interest
-create function interest(@a int,@b int,@i int)
+alter function interest(@an int)
 returns float
 as
 begin
 declare @c float,@bal int,@j int
-SELECT @J=COUNT(*) FROM BANKMASTER WHERE BALANCE=@bal
-if  @j>100000
-begin 
-set @c=@a*@b*@i/100
---print 'Intrest calculated'
-end
-return @c
-update BANKMASTER set BALANCE=BALANCE+@c where BALANCE=@bal
-end
-	select dbo.interest(100000,12,10)
--- 11 ans
-select cname from BANKMASTER b where 2=(select count(distinct BALANCE) from BANKMASTER where BALANCE>b.BALANCE)
-
-
---10
-alter function interest(@a int)
-returns float
-as
-begin
-declare @c float,@bal int,@j int
-SELECT @J=balance FROM bank_master WHERE acono=@a
+SELECT @J=balance FROM bankmaster WHERE accno=@an
 if  @j>=100000
 begin 
 set @c=@j*0.1
@@ -107,6 +89,9 @@ return @j+@c
 end
 
 declare @a int
-set @a= dbo.interest(201)
+set @a= dbo.interest(25643785)
 print @a 
-update bank_master set balance=@a where acono =201
+update bankmaster set balance=@a where accno =25643785
+-- 11 ans
+select cname from BANKMASTER b where 2=(select count(distinct BALANCE) from BANKMASTER where BALANCE>b.BALANCE)
+
