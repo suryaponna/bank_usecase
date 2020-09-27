@@ -90,7 +90,6 @@ select * from transactions order by tdate
 select * from bank_master b where 2=(select count(distinct(balance)) from bank_master where balance > b.balance)
 
 --10
---10
 create function interest(@a int)
 returns float
 as
