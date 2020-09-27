@@ -9,7 +9,8 @@ INSERT INTO BRANCHS VALUES(105 , 'GOA')
 SELECT * FROM BRANCHS
 
 --CREATING A TABLE FOR BANKMASTER WITH REFERENCE TO BRANCES
-CREATE TABLE BANKMASTER(ACCNO INT PRIMARY KEY , CNAME VARCHAR(20) NOT NULL , CITY VARCHAR(20) DEFAULT 'HYDERABAD' , BALANCE MONEY NOT NULL CHECK(BALANCE >500) , BRANCHCODE INT FOREIGN KEY REFERENCES BRANCHS(BRANCHCODE))
+CREATE TABLE BANKMASTER(ACCNO INT PRIMARY KEY , CNAME VARCHAR(20) NOT NULL , CITY VARCHAR(20) DEFAULT 'HYDERABAD' , BALANCE MONEY NOT NULL CHECK(BALANCE>=500) , BRANCHCODE INT FOREIGN KEY REFERENCES BRANCHS(BRANCHCODE))
+--INSERTING VALUES INTO TABLE
 INSERT INTO BANKMASTER VALUES(25643781 , 'MEGHANA' , 'HYDERABD' , 50000 ,103)
 INSERT INTO BANKMASTER VALUES(25643782 , 'ARCHANA' , 'WARANGAL' , 15000 ,101)
 INSERT INTO BANKMASTER VALUES(25643783 , 'SURYA' , 'PUNE' , 25000,105)
@@ -19,9 +20,104 @@ SELECT * FROM BANKMASTER
 
 --CREATING A TABLE FOR BANKTRANSACTION WITH REFERENCE TO BANKMASTER
 CREATE TABLE BANKTRANSACTION(ACCNO INT FOREIGN KEY REFERENCES BANKMASTER(ACCNO) , TTYPE CHAR , TDATE DATETIME NOT NULL , AMT MONEY NOT NULL)
+--INERTING VALUES INTO TABLE
 INSERT INTO BANKTRANSACTION VALUES(25643781 , 'W' , '2000-02-03' , 50000)
 INSERT INTO BANKTRANSACTION VALUES(25643782 , 'D' , '2001-04-13' , 15000)
 INSERT INTO BANKTRANSACTION VALUES(25643783 , 'W' , '2002-05-03' , 25000)
 INSERT INTO BANKTRANSACTION VALUES(25643784 , 'D' , '2003-06-13' , 35000)
 INSERT INTO BANKTRANSACTION VALUES(25643785 , 'W' , '2004-11-23' , 45000)
 SELECT * FROM BANKTRANSACTION
+
+
+--1)List the Bank Master details which customer have at least 30000 and above?
+--syntax
+--select * from tablename where condition
+select * from BANKMASTER where BALANCE>=30000
+
+--2)List the All branchs,Bank Master details which branch have the customers?
+--syntax 
+--select * from tablename left join tablename on condition
+select * from BRANCHS left join BANKMASTER on BRANCHS.BRANCHCODE=bankmaster.BRANCHCODE
+--OR
+SELECT * FROM BRANCHS B,BANKMASTER M WHERE EXISTS (SELECT CNAME FROM BANKMASTER WHERE M.BRANCHCODE=B.BRANCHCODE)
+--3)List the Bank master details which customer maximum no.of times ‘w’ transaction done?
+--using subquery
+--select * from tablename where colname=(select max(col) as aliasname from tablename where condition))
+select * from BANKTRANSACTION where ttype= (select max(ttype)as maximumtype from BANKTRANSACTION where TTYPE='w')
+
+--4)Find the total bal based on branch code and which branch total bal is above 100000 those branch,customer details?
+select BRANCHS.*,BANKMASTER.* FROM BRANCHS,BANKMASTER where BRANCHS.BRANCHCODE IN(select BRANCHCODE from BANKMASTER GROUP BY BRANCHCODE HAVING SUM(BALANCE)>40000) 
+and BANKMASTER.BRANCHCODE IN(select BRANCHCODE from BANKMASTER GROUP BY BRANCHCODE HAVING SUM(BALANCE)>40000)
+--OR
+select * from BANKMASTER m,BRANCHS b where b.BRANCHCODE=m.BRANCHCODE and m.BRANCHCODE in
+(select BRANCHCODE from BANKMASTER group by BRANCHCODE having sum(balance)>20000)
+
+--5) To make non-clustered index on ‘location’ column?
+--using non clusetered index
+--create non-clustered index indexxname on tablename(colname)
+ create nonclustered index I2 on branchs(location) 
+
+--6)To insert record into bank transaction table and To update bank master balance based on transaction type using ‘trigger’?
+--using trigger 
+CREATE TRIGGER Tr1 ON BANKTRANSACTION AFTER INSERT
+AS
+BEGIN
+DECLARE C1 CURSOR FOR SELECT * FROM BANKTRANSACTION
+DECLARE @ACCNO INT,@TTYPE VARCHAR(2),@DATE DATETIME, @AMOUNT INT
+OPEN C1
+FETCH NEXT FROM C1 INTO @ACCNO,@TTYPE,@DATE,@AMOUNT --START THE LOOP
+WHILE(@@FETCH_STATUS=0)
+BEGIN
+FETCH NEXT FROM C1 INTO @ACCNO,@TTYPE,@DATE,@AMOUNT -- CONTINUE THE LOOP
+END
+IF @TTYPE='D'
+UPDATE bankMASTER SET BALANCE=BALANCE +@AMOUNT WHERE ACCNO=@ACCNO
+ELSE
+UPDATE bankMASTER SET BALANCE=BALANCE -@AMOUNT WHERE ACCNO=@ACCNO
+CLOSE C1
+DEALLOCATE C1
+END
+select * from BANKMASTER
+
+--7)To make view which customer bal is above 5000?
+--syntax
+--create view viewnamw as select colname form tablename where condition
+create view v1 as select balance from bankmaster where BALANCE>5000
+select * from v1
+
+--8)To display all bankmaster details for given acno using ‘procedure’ execute separately 
+create procedure bankproc(@accountno int)
+as
+begin
+select * from BankMaster where ACCNO=@accountno
+end
+exec bankproc 25643784
+
+--9)To get all transaction details based on date wise?
+select * from BANKTRANSACTION order by tdate
+
+--10)To give the interest 10% if the cust balance is more than 100000 using function?
+create function taxinterest(@account int)
+returns float
+begin
+declare @d float,@balan int,@c int
+select @c=balance from BANKMASTER where ACCNO=@account
+if @c>=35000
+begin
+set @d=@c*0.1
+end
+return @c+@d
+end
+declare @c int
+set @c= dbo.taxin(25643781)
+print @c
+--updating the value into that accountno
+update bankmaster set balance=@c where ACCNO =25643781
+select * from bankmaster
+
+--11)To list the 3 rd maximum balance customer details?
+--using Nth query
+--syntax
+--select * from tablename where condition=(select count(colname) from tablename where condition(selct max(col) from tablename))
+
+select * from BANKMASTER b where 2=(select count(distinct BALANCE) from BANKMASTER where balance>b.BALANCE)
