@@ -111,3 +111,27 @@ update bank_master set balance=@a where acono =201
 
 select * from bank_master
 select * from branchs
+
+--11
+create table trandummy(aco int,ttype varchar(1),tdate date,amt money)
+alter trigger bankd on trandummy
+after insert
+as
+begin
+	declare c1 cursor scroll for select aco,ttype,amt,balance from trandummy,bank_master where aco=bank_master.acono
+	declare @aco int,@ttype varchar(1),@amt money,@bal money
+	open c1
+	fetch last from c1 into @aco,@ttype,@amt,@bal
+	if @@FETCH_STATUS = 0
+	begin
+		if @ttype ='d'
+			update bank_master set balance=@bal+@amt where acono=@aco
+		else 
+			update bank_master set balance=@bal-@amt where acono=@aco
+	end
+	else
+		print 'no records found'
+	close c1
+	deallocate c1			  
+end
+insert into trandummy values(206,'d',getdate(),25000)
