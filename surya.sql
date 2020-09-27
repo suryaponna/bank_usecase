@@ -108,7 +108,6 @@ declare @a int
 set @a= dbo.interest(201)
 print @a 
 update bank_master set balance=@a where acono =201
-
 select * from bank_master
 select * from branchs
 
