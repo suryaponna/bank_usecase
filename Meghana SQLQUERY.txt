@@ -86,12 +86,12 @@ create view v1 as select balance from bankmaster where BALANCE>5000
 select * from v1
 
 --8)To display all bankmaster details for given acno using ‘procedure’ execute separately 
-create procedure bankproc(@accountno int)
+create procedure bankpro(@accountno int)
 as
 begin
 select * from BankMaster where ACCNO=@accountno
 end
-exec bankproc 25643784
+exec bankpro 25643784
 
 --9)To get all transaction details based on date wise?
 select * from BANKTRANSACTION order by tdate
@@ -109,7 +109,7 @@ end
 return @c+@d
 end
 declare @c int
-set @c= dbo.taxin(25643781)
+set @c= dbo.taxinterest(25643781)
 print @c
 --updating the value into that accountno
 update bankmaster set balance=@c where ACCNO =25643781
