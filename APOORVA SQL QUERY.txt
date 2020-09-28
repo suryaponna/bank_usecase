@@ -135,16 +135,16 @@ select * from BANKTRANSACTION order by TDATE
 create function taxin(@ac int)
 returns float
 begin
-declare @d float,@balan int,@jc int
-select @jc=balance from BANKMASTER where ACCNO=@ac
-if @jc>=25000
+declare @d float,@balan int,@k int
+select @k=balance from BANKMASTER where ACCNO=@ac
+if @k>=000
 begin
-set @d=@jc*0.1
+set @d=@k*0.1
 end
-return @jc+@d
+return @k+@d
 end
 declare @ac int
-set @ac= dbo.taxin(25643781)
+set @ac= dbo.taxin(12345671)
 print @ac
 update bankmaster set balance=@ac where ACCNO =12345671
 
