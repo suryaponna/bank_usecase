@@ -55,21 +55,26 @@ and BANKMASTER.BRANCHCODE IN
 create nonclustered index I2 on branchs(location) 
 --6)To insert record into bank transaction table and To update bank master balance based on transaction type using ‘trigger’.
 --using trigger 
-create trigger t1 
-on banktransaction
-for insert 
-as
-begin
-insert into BANKTRANSACTION select accno,ttype,tdate,amt
-end
-	insert into BANKTRANSACTION(ACCNO,TTYPE,TDATE,AMT) values(25643786,'w',27-09-2020,105000)
-if @ttype='d'
-update BANKMASTER set BALANCE=BALANCE+500 where ACCNO=@accno
-else
-update BANKMASTER set BALANCE=BALANCE-500 where ACCNO=@accno
-close c1
-deallocate c1
-end
+CREATE TRIGGER T2 ON BankTRANSACTION AFTER INSERT
+AS
+BEGIN
+DECLARE C1 CURSOR FOR SELECT * FROM BANKTRANSACTION
+DECLARE @ACCNO INT,@TTYPE VARCHAR(2),@DATE DATETIME, @AMOUNT INT
+OPEN C1
+FETCH NEXT FROM C1 INTO @ACCNO,@TTYPE,@DATE,@AMOUNT --START THE LOOP
+WHILE(@@FETCH_STATUS=0)
+BEGIN
+FETCH NEXT FROM C1 INTO @ACCNO,@TTYPE,@DATE,@AMOUNT -- CONTINUE THE LOOP
+END
+IF @TTYPE='D'
+UPDATE bankMASTER SET BALANCE=BALANCE +@AMOUNT WHERE ACCNO=@ACCNO
+ELSE
+UPDATE bankMASTER SET BALANCE=BALANCE -@AMOUNT WHERE ACCNO=@ACCNO
+CLOSE C1
+DEALLOCATE C1
+END
+
+
 
 
 
