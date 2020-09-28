@@ -52,7 +52,7 @@ select BRANCHS.*,BANKMASTER.* from branchs,BANKMASTER where BRANCHS.BRANCHCODE=B
 
 --using subquery
 --select * from tablename where colname=(select max(col) as aliasname from tablename where condition))
-select * from BANKTRANSACTION where ttype= (select max(ttype)as maximumtype from BANKTRANSACTION where TTYPE='w')
+--select * from BANKTRANSACTION where ttype= (select max(ttype)as maximumtype from BANKTRANSACTION where TTYPE='w')
 
 --4Q)FIND THE TOTAL BALANCE BASED ON BRANCH CODE AND WHICH BRANCH TOTAL BAL IS ABOVE 10000 THOSE BRANCH,CUSTOMER DETAILS.
 
