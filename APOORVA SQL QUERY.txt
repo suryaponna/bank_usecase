@@ -1,4 +1,4 @@
---CREATED BY APOORVA RAMYSHETTY
+--TABLE CREATED BY APOORVA RAMYSHETTY
 
 --CREATING BRANCHS TABLE WITH COLUMN NAME,DATATYPE AND RULE)
 
@@ -33,6 +33,7 @@ SELECT * FROM BANKTRANSACTION
 --1Q)LIST THE BANK MASTER DETAILS WHICH CUSTOMER HAVE AT LEAST 30000 AND ABOVE?
 
 --QUERY ANSWER:
+--select * from tablename where condition
 select * from BankMaster where balance>=30000
 
 --2Q)LIST ALL BRANCHS,BANK MASTER DETAILS WHICH BRANCH HAVE THE CUSTOMERS.
@@ -40,12 +41,18 @@ select * from BankMaster where balance>=30000
 --QUERY ANSWER:
 select Branchs.*,BankMaster.* from Branchs inner join BankMaster
 on Branchs.Branchcode=BankMaster.Branchcode
+--(or)
+--select tablename.colname from tablename where condition 
+select BRANCHS.*,BANKMASTER.* from branchs,BANKMASTER where BRANCHS.BRANCHCODE=BANKMASTER.BRANCHCODE 
+
 
 --3Q)LIST THE BANK MASTER DETAILS WHICH CUSTOMER MAXIMUM NO.OF TIMES 'w' TRANSACTION DONE.
 
 --QUERY ANSWER:
 
---select * from BankTransaction  ttype = (select max(ttype) from BankTransaction where ttype = 'w'
+--using subquery
+--select * from tablename where colname=(select max(col) as aliasname from tablename where condition))
+select * from BANKTRANSACTION where ttype= (select max(ttype)as maximumtype from BANKTRANSACTION where TTYPE='w')
 
 --4Q)FIND THE TOTAL BALANCE BASED ON BRANCH CODE AND WHICH BRANCH TOTAL BAL IS ABOVE 10000 THOSE BRANCH,CUSTOMER DETAILS.
 
@@ -57,23 +64,55 @@ select BANKMASTER.*,BRANCHS.* from BANKMASTER,BRANCHS where BRANCHS.BRANCHCODE=B
 --5Q)TO MAKE NON CLUSTERED INDEX ON LOCATION COLUMN.
 
 --QUERY ANSWER:
-
+--using non clusetered index
+--create non-clustered index indexxname on tablename(colname)
 create nonclustered index clustered_location on branchs(location)
 select * from branchs
-OR
+--OR
 create nonclustered index i1 on branchs(location)
+
+6Q)To insert record into bank transaction table and To update bank master balance based on transaction type using ‘trigger’.
+
+--QUERY ANSWER:
+--using trigger concept:
+create trigger t1 
+on banktransaction
+for insert 
+as
+begin
+insert into BANKTRANSACTION select accno,ttype,tdate,amt
+end
+	insert into BANKTRANSACTION(ACCNO,TTYPE,TDATE,AMT) values(12345676,'w',27-09-2020,105000)
+if @ttype='d'
+update BANKMASTER set BALANCE=BALANCE+500 where ACCNO=@accno
+else
+update BANKMASTER set BALANCE=BALANCE-500 where ACCNO=@accno
+close c1
+deallocate c1
+end
 
 --7Q)TO MAKE VIEW WHICH CUSTOMER BAL IS ABOVE 5000?
 
 --QUERY ANSWER
 
-drop view bal
+--using views
+--create view viewname as select colname form tablename where condition
 create view bal as select * from BANKMASTER where BALANCE>5000
 select * from bal
 
 --8Q)TO DISPLAY ALL BANKMASTER DETAILS FOR GIVEN ACCNO USING 'PROCEDURE'.
 
 --QUERY ANSWER:
+/**create procedure display(@accnumber int)
+as
+begin
+declare @accnumber int
+select * from BANKMASTER 
+select @accnumber=accno from BANKMASTER where accno=@accnumber
+print @accnumber+' '+cast(@accnumber as varchar)
+end
+	exec display 12345674
+*/	
 
 create proc banking(@ano int)
 as
@@ -85,21 +124,38 @@ end
 --9Q)TO GET ALL TRANSACTION DETAILS BASED ON DATEWISE.
 
 --QUERY ANSWER:
+select distinct tdate from BANKTRANSACTION 
+select * from BANKTRANSACTION where tdate<=(select distinct tdate from BANKTRANSACTION )
 
 select * from BANKTRANSACTION order by TDATE 
 
 --10Q)TO GIVE THE INTERST 10% IF THE CUST BALANCE IS MORE THAN 10000 USING FUNCTION.
 
 --QUERY ANSWER:
+create function taxin(@ac int)
+returns float
+begin
+declare @d float,@balan int,@jc int
+select @jc=balance from BANKMASTER where ACCNO=@ac
+if @jc>=25000
+begin
+set @d=@jc*0.1
+end
+return @jc+@d
+end
+declare @ac int
+set @ac= dbo.taxin(25643781)
+print @ac
+update bankmaster set balance=@ac where ACCNO =12345671
 
-
-
+select * from bankmaster
 
 --11Q)TO LIST THE 3RD MAXIMUM BALANCE CUSTOMER DETAILS.
 
 --QUERY ANSWER:
+----select * from tablename where condition=(select max(colname) from tablename where condition(selct max(col) from tablename))
 --used nth query
 select cname from BANKMASTER b where 2=(select count(distinct BALANCE) from BANKMASTER where BALANCE>b.BALANCE)
-
+--(or)
 --with subquery:
 select cname from bankmaster where balance=(select max(balance) from bankmaster where balance<(select max(balance) from bankmaster where balance<(select max(balance) from bankmaster)))
