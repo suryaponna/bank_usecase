@@ -40,10 +40,11 @@ select * from BANKMASTER where BALANCE>=30000
 select * from BRANCHS left join BANKMASTER on BRANCHS.BRANCHCODE=bankmaster.BRANCHCODE
 --OR
 SELECT * FROM BRANCHS B,BANKMASTER M WHERE EXISTS (SELECT CNAME FROM BANKMASTER WHERE M.BRANCHCODE=B.BRANCHCODE)
+
 --3)List the Bank master details which customer maximum no.of times ‘w’ transaction done?
 --using subquery
 --select * from tablename where colname=(select max(col) as aliasname from tablename where condition))
-select * from BANKTRANSACTION where ttype= (select max(ttype)as maximumtype from BANKTRANSACTION where TTYPE='w')
+ select * from BANKTRANSACTION where ttype= (select max(ttype)as maximumtype from BANKTRANSACTION where TTYPE='w')
 
 --4)Find the total bal based on branch code and which branch total bal is above 100000 those branch,customer details?
 select BRANCHS.*,BANKMASTER.* FROM BRANCHS,BANKMASTER where BRANCHS.BRANCHCODE IN(select BRANCHCODE from BANKMASTER GROUP BY BRANCHCODE HAVING SUM(BALANCE)>40000) 
@@ -77,7 +78,7 @@ UPDATE bankMASTER SET BALANCE=BALANCE -@AMOUNT WHERE ACCNO=@ACCNO
 CLOSE C1
 DEALLOCATE C1
 END
-select * from BANKMASTER
+SELECT * FROM  BANKMASTER
 
 --7)To make view which customer bal is above 5000?
 --syntax
