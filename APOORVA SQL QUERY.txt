@@ -74,7 +74,7 @@ create nonclustered index i1 on branchs(location)
 6Q)To insert record into bank transaction table and To update bank master balance based on transaction type using ‘trigger’.
 
 --QUERY ANSWER:
-using trigger concept:
+--using trigger concept:
 create trigger t1 
 on banktransaction
 for insert 
