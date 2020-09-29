@@ -34,10 +34,8 @@ select * from BankMaster where balance>=30000
 select Branchs.*,BankMaster.* from Branchs inner join BankMaster
 on Branchs.Branchcode=BankMaster.Branchcode
 -- 3 ans
-select cname from BANKMASTER where ACCNO=
-(select ACCNO from BANKTRANSACTION where BALANCE=
-(select max('w') from BANKTRANSACTION where BALANCE
-in(select ACCNO from BANKTRANSACTION group by ACCNO)))
+select * from BANKMASTER where ACCNO IN
+(select ACCNO from BANKTRANSACTION where TTYPE='W' GROUP BY ACCNO)
 --4 ans
 select BANKMASTER.*,BRANCHS.* from BANKMASTER,BRANCHS where BRANCHS.BRANCHCODE=BANKMASTER.BRANCHCODE and BANKMASTER.BRANCHCODE in
 (select BRANCHCODE from BANKMASTER group by BRANCHCODE having sum(balance)>10000)
