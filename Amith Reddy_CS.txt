@@ -1,4 +1,4 @@
-CREATE TABLE BANK_MASTER(ACNO INT PRIMARY KEY, CNAME VARCHAR(20) NOT NULL,CITY VARCHAR(40) DEFAULT 'HYDERABAD', BALANCE MONEY NOT NULL, BCODE INT FOREIGN KEY REFERENCES B_BRANCH(BCODE))
+CREATE TABLE BANK_MASTER(ACNO INT PRIMARY KEY, CNAME VARCHAR(20) NOT NULL,CITY VARCHAR(40) DEFAULT 'HYDERABAD', BALANCE MONEY NOT NULL CHECK(BALANCE>=500), BCODE INT FOREIGN KEY REFERENCES B_BRANCH(BCODE))
 
 CREATE TABLE B_BRANCH(BCODE INT PRIMARY KEY,LOCATION VARCHAR(20) NOT NULL)
 
@@ -35,13 +35,15 @@ INSERT INTO B_TRANSACTION VALUES(2403,'W',2019-08-07,10000)
 INSERT INTO B_TRANSACTION VALUES(2401,'W',2019-12-07,10000)
 SELECT * FROM B_TRANSACTION
 
-1)
+1)--List the Bank Master details which customer have at least 30000 and above?
 SELECT * FROM BANK_MASTER WHERE BALANCE>=30000
 
-2)
+2)--List the All branchs,Bank Master details which branch have the
+customers.
 SELECT * FROM B_BRANCH B,BANK_MASTER M WHERE EXISTS (SELECT CNAME FROM BANK_MASTER WHERE M.BCODE=B.BCODE)
 
-3)
+3)--List the Bank master details which customer maximum no.of times
+--for ‘w’ transaction
 select * from bank_master where acno=(
 select acno from (
 select acno,count(*) as countt from B_TRANSACTION where ttype='w' group by acno having 
@@ -49,16 +51,17 @@ count(*)=
 (select max(countt) from(select acno,count(*) 
 as countt from B_TRANSACTION where ttype='w' group by acno )B_transactions))B_transactions)
 
-4)
+4)--Find the total bal based on branch code and which branch total bal is above 100000 those branch,customer details.
 select * from BANK_MASTER m,B_BRANCH b where b.BCODE=m.BCODE and m.BCODE in
 (select BCODE from BANK_MASTER group by BCODE having sum(balance)>200000)
 
-5)
+5)--To make non-clustered index on ‘location’ column.
 create nonclustered index clustered_location on b_branch(location)
 select * from B_BRANCH
 
 
-6)
+6)--To insert record into bank transaction table and To update bank
+master balance based on transaction type using ‘trigger’.
 CREATE TRIGGER T11 ON B_TRANSACTION AFTER INSERT
 AS
 BEGIN
@@ -81,13 +84,14 @@ END
 INSERT INTO B_TRANSACTION VALUES(2401,'W',2019-09-27,10000)
 INSERT INTO B_TRANSACTION VALUES(2401,'D',2019-09-27,10000)
 select * from BANK_MASTER
-7)
+
+7)--To make view which customer bal is above 5000?
 create view vw
 as
 select * from bank_master where balance > 5000
 select * from vw
 
-8) 
+8)--To display all bankmaster details for given acno using ‘procedure’
 create proc p(@a int)
 as
 begin
@@ -95,10 +99,11 @@ exec('select * from bank_master where acno='+@a)
 end
 exec p 2401
 
-9)
+9)--To get all transaction details based on date wise.
 select * from B_TRANSACTION order by TDATE 
 
-10)
+10)--To give the interest 10% if the cust balance is more than 100000
+using function.
 create function 
 intrst(@a int)
 returns float
@@ -122,6 +127,6 @@ update bank_master set balance=@a where acno =2401
 select * from bank_master
 select * from b_branch
 
-11)
+11)--To list the 3 rd maximum balance customer details.
 select * from bank_master where balance=(select max(balance) from bank_master where 
 balance<(select max(balance) from bank_master where balance<(select max(balance) from bank_master)))
