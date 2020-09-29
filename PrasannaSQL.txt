@@ -34,10 +34,8 @@ select * from BankMaster where balance>=30000
 select Branchs.*,BankMaster.* from Branchs inner join BankMaster
 on Branchs.Branchcode=BankMaster.Branchcode
 -- 3 ans
-select cname from BANKMASTER where ACCNO=
-(select ACCNO from BANKTRANSACTION where BALANCE=
-(select max('w') from BANKTRANSACTION where BALANCE
-in(select ACCNO from BANKTRANSACTION group by ACCNO)))
+select * from BANKMASTER where ACCNO IN
+(select ACCNO from BANKTRANSACTION where TTYPE='W' GROUP BY ACCNO)
 --4 ans
 select BANKMASTER.*,BRANCHS.* from BANKMASTER,BRANCHS where BRANCHS.BRANCHCODE=BANKMASTER.BRANCHCODE and BANKMASTER.BRANCHCODE in
 (select BRANCHCODE from BANKMASTER group by BRANCHCODE having sum(balance)>10000)
@@ -47,8 +45,7 @@ create nonclustered index i1 on Branchs(location)
 DROP TABLE bankbackup
 create table bankbackup(Accnos int,Ttype char,Tdate datetime,Amt int)
 select * from bankbackup
-DROP TRIGGER T4
-CREATE TRIGGER T4 ON bankbackup 
+ALTER TRIGGER T4 ON bankbackup -- creating trigger
 for insert
 AS
 BEGIN
@@ -70,11 +67,11 @@ DEALLOCATE C4
 END
 	INSERT INTO bankbackup VALUES(2738827,'D',GETDATE(),80000)
 --7 ans
-drop view bal
-create view bal as select * from BANKMASTER where BALANCE>5000
+--drop view bal
+create view bal as select * from BANKMASTER where BALANCE>5000 -- creating a view
 select * from bal
 --8 ans
-create proc bank(@ano int)
+create proc bank(@ano int) --creating procedure
 as
 begin
 select * from BankMaster where ACCNO=@ano
@@ -83,24 +80,23 @@ end
 --9 ans
 select * from BANKTRANSACTION order by TDATE 
 --10 ans
-alter function interest(@an int)
+alter function calcint(@an int) -- creating function
 returns float
 as
 begin
 declare @c float,@bal int,@j int
-SELECT @J=balance FROM bankmaster WHERE accno=@an
-if  @j>=100000
+SELECT @j=balance FROM bankmaster WHERE accno=@an
+if  @j>=0
 begin 
 set @c=@j*0.1
 --print 'Intrest calculated'
 end
-return @j+@c
+return @j+@c                                    
 end
-
 declare @a int
-set @a= dbo.interest(25643785)
+set @a= dbo.calcint(25643785)
 print @a 
 update bankmaster set balance=@a where accno =25643785
 -- 11 ans
-select cname from BANKMASTER b where 2=(select count(distinct BALANCE) from BANKMASTER where BALANCE>b.BALANCE)
-
+select cname from BANKMASTER b where 2=(select count(distinct BALANCE) from BANKMASTER where BALANCE>b.BALANCE)-- using Nth query
+ 
