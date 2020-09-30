@@ -55,6 +55,7 @@ and BANKMASTER.BRANCHCODE IN(select BRANCHCODE from BANKMASTER GROUP BY BRANCHCO
 select * from BANKMASTER m,BRANCHS b where b.BRANCHCODE=m.BRANCHCODE and m.BRANCHCODE in
 (select BRANCHCODE from BANKMASTER group by BRANCHCODE having sum(balance)>20000)
 
+
 --5) To make non-clustered index on ‘location’ column?
 --USED NON-CLUSTERED INDEX
 --create non-clustered index indexxname on tablename(colname)
