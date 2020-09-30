@@ -31,20 +31,22 @@ SELECT * FROM BANKTRANSACTION
 --1)List the Bank Master details which customer have at least 30000 and above?
 --select * from tablename where condition
 select * from BANKMASTER where BALANCE>=30000
+--this query returns bankmaster details with balance is greater than or equal to 30000
 --2)List the All branchs,Bank Master details which branch have the customers.
 --select tablename.colname from tablename where condition 
 select BRANCHS.*,BANKMASTER.* from branchs,BANKMASTER where BRANCHS.BRANCHCODE=BANKMASTER.BRANCHCODE 
 --           (or)
 --select * from tablename left join tablename on condition
 select * from BRANCHS left join BANKMASTER on BRANCHS.BRANCHCODE=bankmaster.BRANCHCODE
+--this query returns all branch details,bankmaster details of branch common column and bankmaster common col 
 --3)List the Bank master details which customer maximum no.of times ‘w’ transaction done.
 --using subquery
-select * from BANKMASTER where ACCNO=
-(select ACCNO from BANKTRANSACTION where BALANCE=
-(select max('w') from BANKTRANSACTION where BALANCE
-in(select ACCNO from BANKTRANSACTION group by ACCNO)))
+
+select * from BANKTRANSACTION where ttype= (select max(ttype)as maxtp from BANKTRANSACTION where TTYPE='w')
 
 --4)Find the total bal based on branch code and which branch total bal is above 100000 those branch,customer details.
+--using subquery
+--select tablnames query (select query)
 select BRANCHS.*,BANKMASTER.* FROM BRANCHS,BANKMASTER where BRANCHS.BRANCHCODE IN
 (select BRANCHCODE from BANKMASTER GROUP BY BRANCHCODE HAVING SUM(BALANCE)>40000) 
 and BANKMASTER.BRANCHCODE IN
@@ -75,11 +77,6 @@ UPDATE bankMASTER SET BALANCE=BALANCE -@AMOUNT WHERE ACCNO=@ACCNO
 CLOSE C1
 DEALLOCATE C1
 END
-
-
-
-
-
 
 --7)To make view which customer bal is above 5000?
 --using views

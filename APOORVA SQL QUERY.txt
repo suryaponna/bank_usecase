@@ -35,7 +35,9 @@ SELECT * FROM BANKTRANSACTION
 --QUERY ANSWER:
 --select * from tablename where condition
 select * from BankMaster where balance>=30000
-
+--QUERY ANSWER DESCRIPTION :
+--This query lists all bankmaster details with condition i.e, atleast 30000 and above in where clause.
+----------------------------------------------------------------------------------------------
 --2Q)LIST ALL BRANCHS,BANK MASTER DETAILS WHICH BRANCH HAVE THE CUSTOMERS.
 
 --QUERY ANSWER:
@@ -44,33 +46,43 @@ on Branchs.Branchcode=BankMaster.Branchcode
 --(or)
 --select tablename.colname from tablename where condition 
 select BRANCHS.*,BANKMASTER.* from branchs,BANKMASTER where BRANCHS.BRANCHCODE=BANKMASTER.BRANCHCODE 
-
-
+--QUERY DESCRIPTION:
+--By using any of the join technique we can perform this query by listing all the details of branches and bankmaster and therefore which branch have the customers.
+--for joining two tables common column i.e branchcode is compulsory.
+----------------------------------------------------------------------------------------------------
 --3Q)LIST THE BANK MASTER DETAILS WHICH CUSTOMER MAXIMUM NO.OF TIMES 'w' TRANSACTION DONE.
 
 --QUERY ANSWER:
 
---using subquery
---select * from tablename where colname=(select max(col) as aliasname from tablename where condition))
---select * from BANKTRANSACTION where ttype= (select max(ttype)as maximumtype from BANKTRANSACTION where TTYPE='w')
-
+--using nested subquery:
+select cname from BANKMASTER where ACCNO=
+(select ACCNO from BANKTRANSACTION where BALANCE=
+(select max('w') from BANKTRANSACTION where BALANCE
+in(select ACCNO from BANKTRANSACTION group by ACCNO)))
+QUERY EXPLANATION :
+Firstly,the inner query will be executed first,result of it passed to main query then the main query executes.Here,the bankmaster details are displayed that which customer maximum number of withdraw transactions are done.
+------------------------------------------------------------------------------------------------------
 --4Q)FIND THE TOTAL BALANCE BASED ON BRANCH CODE AND WHICH BRANCH TOTAL BAL IS ABOVE 10000 THOSE BRANCH,CUSTOMER DETAILS.
 
 --QUERY ANSWER:
-
+using subquery:
 select BANKMASTER.*,BRANCHS.* from BANKMASTER,BRANCHS where BRANCHS.BRANCHCODE=BANKMASTER.BRANCHCODE and BANKMASTER.BRANCHCODE in
 (select BRANCHCODE from BANKMASTER group by BRANCHCODE having sum(balance)>10000)
-
+QUERY ANSWER :
+Selecting total details of bankmaster and braches from the respective tables joining them with the common column.'AND' is the logical operator used for different column and same row.'IN' is the special operator.'Groupby'is the special clause for column function whhich is used to group columns.'Having' is also a special clause for column function which is used when condition [sum(balance)>10000] exits.
+------------------------------------------------------------------------------------------------------
 --5Q)TO MAKE NON CLUSTERED INDEX ON LOCATION COLUMN.
 
 --QUERY ANSWER:
 --using non clusetered index
---create non-clustered index indexxname on tablename(colname)
+--create non-clustered index indexxname on tablename(columnname)
 create nonclustered index clustered_location on branchs(location)
 select * from branchs
+-- Here clustered index name is clustered location.
 --OR
 create nonclustered index i1 on branchs(location)
-
+-- Here clustered index name is i1 location.
+------------------------------------------------------------------------------------------------------
 6Q)To insert record into bank transaction table and To update bank master balance based on transaction type using ‘trigger’.
 
 --QUERY ANSWER:
@@ -91,15 +103,20 @@ close c1
 deallocate c1
 end
 
+QUERY EXPLANATION :
+Triggers are for automatic data generation specifically in audit(checking) modifications.
+-----------------------------------------------------------------------------------------------------------
 --7Q)TO MAKE VIEW WHICH CUSTOMER BAL IS ABOVE 5000?
 
 --QUERY ANSWER
 
 --using views
---create view viewname as select colname form tablename where condition
+--SYNTAX :-create view viewname as select colname form tablename where condition
 create view bal as select * from BANKMASTER where BALANCE>5000
 select * from bal
-
+QUERY ANSWER:
+View is created for base tabale.Any change in view table affects the base table and viceversa.view table is constructed on basis of basestable.View is virtual or image table.  
+-----------------------------------------------------------------------------------------------------------------------
 --8Q)TO DISPLAY ALL BANKMASTER DETAILS FOR GIVEN ACCNO USING 'PROCEDURE'.
 
 --QUERY ANSWER:
@@ -120,15 +137,18 @@ begin
 select * from BankMaster where ACCNO=@ano
 end
 	exec banking 12345674
-
+QUERY ANSWER :
+As per the syntax mentioned above.
+------------------------------------------------------------------------------------------------------------------------
 --9Q)TO GET ALL TRANSACTION DETAILS BASED ON DATEWISE.
 
 --QUERY ANSWER:
-select distinct tdate from BANKTRANSACTION 
+--SYNTAX:-select distinct tdate from BANKTRANSACTION 
 select * from BANKTRANSACTION where tdate<=(select distinct tdate from BANKTRANSACTION )
-
+--(OR)
 select * from BANKTRANSACTION order by TDATE 
-
+QUERY EXPLANATION : We can use distinct keyword to select distinct(different) records or with relaational operator.
+---------------------------------------------------------------------------------------------------------------------------
 --10Q)TO GIVE THE INTERST 10% IF THE CUST BALANCE IS MORE THAN 10000 USING FUNCTION.
 
 --QUERY ANSWER:
@@ -149,13 +169,14 @@ print @ac
 update bankmaster set balance=@ac where ACCNO =12345671
 
 select * from bankmaster
-
+----------------------------------------------------------------------------------------------------------------------------------------------------
 --11Q)TO LIST THE 3RD MAXIMUM BALANCE CUSTOMER DETAILS.
 
 --QUERY ANSWER:
 ----select * from tablename where condition=(select max(colname) from tablename where condition(selct max(col) from tablename))
---used nth query
+--used nth query:-
 select cname from BANKMASTER b where 2=(select count(distinct BALANCE) from BANKMASTER where BALANCE>b.BALANCE)
 --(or)
---with subquery:
+--with subquery:-
 select cname from bankmaster where balance=(select max(balance) from bankmaster where balance<(select max(balance) from bankmaster where balance<(select max(balance) from bankmaster)))
+QUERY ANSWER : Firstly,the innermost query executes then its result sent to secondary query,again its result is passed to main query,then after the main query executes.It gives the third maximum balance customer details.
