@@ -46,7 +46,7 @@ select * from BRANCHS left join BANKMASTER on BRANCHS.BRANCHCODE=bankmaster.BRAN
 select Branchs.*,BankMaster.* from Branchs inner join BankMaster on Branchs.Branchcode=BankMaster.Branchcode
 
 --3)List the Bank master details which customer maximum no.of times ‘w’ transaction done?
---USED MULTI-SUBQUERY
+--USED MULTI-ROW SUBQUERY
 --IN OPERATOR
 select * from BANKMASTER where ACCNO IN(select ACCNO from BANKTRANSACTION where TTYPE='W' GROUP BY ACCNO)
 
