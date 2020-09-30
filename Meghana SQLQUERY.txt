@@ -46,9 +46,7 @@ select * from BRANCHS left join BANKMASTER on BRANCHS.BRANCHCODE=bankmaster.BRAN
 select Branchs.*,BankMaster.* from Branchs inner join BankMaster on Branchs.Branchcode=BankMaster.Branchcode
 
 --3)List the Bank master details which customer maximum no.of times ‘w’ transaction done?
---USED MULTI-ROW SUBQUERY
---IN OPERATOR
-select * from BANKMASTER where ACCNO IN(select ACCNO from BANKTRANSACTION where TTYPE='W' GROUP BY ACCNO)
+select * from BANKTRANSACTION where ttype= (select max(ttype)as maxtp from BANKTRANSACTION where TTYPE='w')
 
 --4)Find the total bal based on branch code and which branch total bal is above 100000 those branch,customer details?
 select BRANCHS.*,BANKMASTER.* FROM BRANCHS,BANKMASTER where BRANCHS.BRANCHCODE IN(select BRANCHCODE from BANKMASTER GROUP BY BRANCHCODE HAVING SUM(BALANCE)>40000) 
