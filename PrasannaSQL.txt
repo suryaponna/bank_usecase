@@ -30,9 +30,11 @@ SELECT * FROM BANKTRANSACTION
 
 --1 ans
 select * from BankMaster where balance>=30000
+--THIS QUERY GIVES ALL BANKMASTER DETAILS WHOSE BALANCE IS ABOVE AND EQUAL TO 30000
 --2 ans 
 select Branchs.*,BankMaster.* from Branchs inner join BankMaster
 on Branchs.Branchcode=BankMaster.Branchcode
+--THIS QUERY RETURNS ALL BRANCHS,BANKMASTER DETAILS WHICH BRANCH HAVE CUSTOMERS USING INNERJOIN
 -- 3 ans
  select * from BANKTRANSACTION where ttype= (select max(ttype)as maxtp from BANKTRANSACTION where TTYPE='w')
  (or)
@@ -42,11 +44,14 @@ select ACCNO,count(*) as wdone from BANKtransaction where ttype='w' group by ACC
 count(*)=
 (select max(wdone) from(select ACCNO,count(*) 
 as wdone from BANKTRANSACTION where ttype='w' group by ACCNO )BANKtransaction))BANKtransaction)
+--THIS QUERY GIVES ALL BANKMASTER DETAILS WHICH CUSTOMER HAVE MAXIMUM NUMBER OF TRANSACTIONS
 --4 ans
-select BANKMASTER.*,BRANCHS.* from BANKMASTER,BRANCHS where BRANCHS.BRANCHCODE=BANKMASTER.BRANCHCODE and BANKMASTER.BRANCHCODE in
+select BANKMASTER.CNAME,BRANCHS.LOCATION from BANKMASTER,BRANCHS where BRANCHS.BRANCHCODE=BANKMASTER.BRANCHCODE and BANKMASTER.BRANCHCODE in
 (select BRANCHCODE from BANKMASTER group by BRANCHCODE having sum(balance)>10000)
+--THIS QUERY CHECKS TOTAL BALANCE BASED ON BRANCH CODE AND WHICH BRANCH TOTAL BAL IS ABOVE 10000 THOSE BRANCH,CUSTOMER DETAILS.
 --5 ans
 create nonclustered index i1 on Branchs(location)
+--THIS QUERY IS CREATING A NONCLUSTERED INDEX ON LOCATION 
 --6 ans
 DROP TABLE bankbackup
 create table bankbackup(Accnos int,Ttype char,Tdate datetime,Amt int)
@@ -62,20 +67,22 @@ open c4
 	if @@FETCH_STATUS = 0
 	begin
 IF @TTYPE='D'
-UPDATE BANKMASTER SET BALANCE=BALANCE +500 WHERE ACCNO=@ACCNOS
+UPDATE BANKMASTER SET BALANCE=BALANCE +500 WHERE ACCNO=@ACCNOS--UPDATING
 ELSE
-UPDATE BANKMASTER SET BALANCE=BALANCE -500 WHERE ACCNO=@ACCNOS
+UPDATE BANKMASTER SET BALANCE=BALANCE -500 WHERE ACCNO=@ACCNOS--UPDATING
 END
 ELSE 
 PRINT'SORRY'
 CLOSE C4
 DEALLOCATE C4
 END
-	INSERT INTO bankbackup VALUES(2738827,'D',GETDATE(),80000)
+	INSERT INTO bankbackup VALUES(2738827,'D',GETDATE(),80000)--INSERTING
+	--IN THIS QUERY INSERTION AND UPDATION IS HAPPENED USING TRIGGER
 --7 ans
 --drop view bal
 create view bal as select * from BANKMASTER where BALANCE>5000 -- creating a view
 select * from bal
+--WE ARE CREATING A VIEW FOR BANKMASTER DETAILS WHOSE BAKANCE IS ABOVE 5000
 --8 ans
 create proc bank(@ano int) --creating procedure
 as
@@ -83,8 +90,10 @@ begin
 select * from BankMaster where ACCNO=@ano
 end
 	exec bank 25643784
+	-- IN THIS QUERY WE ARE DISPLAY ALL BANKMASTER DETAILS FOR GIVEN ACCNO USING 'PROCEDURE'.
 --9 ans
 select * from BANKTRANSACTION order by TDATE 
+-- QUERY TO GET ALL TRANSACTION DETAILS BASED ON DATEWISE.
 --10 ans
 alter function calcint(@an int) -- creating function
 returns float
@@ -92,7 +101,7 @@ as
 begin
 declare @c float,@bal int,@j int
 SELECT @j=balance FROM bankmaster WHERE accno=@an
-if  @j>=0
+if  @j>=10000
 begin 
 set @c=@j*0.1
 --print 'Intrest calculated'
@@ -103,6 +112,9 @@ declare @a int
 set @a= dbo.calcint(25643785)
 print @a 
 update bankmaster set balance=@a where accno =25643785
+-- QUERY FOR CALCULATING THE INTERST 10% IF THE CUSTOMER BALANCE IS MORE THAN 10000 USING FUNCTION.
 -- 11 ans
-select cname from BANKMASTER b where 2=(select count(distinct BALANCE) from BANKMASTER where BALANCE>b.BALANCE)-- using Nth query
+select cname from BANKMASTER b where 2=
+(select count(distinct BALANCE) from BANKMASTER where BALANCE>b.BALANCE)-- using Nth query
+-- IN THIS QUERY WE ARE FINDING 3RD MAXIMUM BALANCE CUSTOMER DETAILS
  
