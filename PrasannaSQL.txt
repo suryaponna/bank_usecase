@@ -35,6 +35,13 @@ select Branchs.*,BankMaster.* from Branchs inner join BankMaster
 on Branchs.Branchcode=BankMaster.Branchcode
 -- 3 ans
  select * from BANKTRANSACTION where ttype= (select max(ttype)as maxtp from BANKTRANSACTION where TTYPE='w')
+ (or)
+ select * from bankmaster where ACCNO=(
+select ACCNO from(
+select ACCNO,count(*) as wdone from BANKtransaction where ttype='w' group by ACCNO having 
+count(*)=
+(select max(wdone) from(select ACCNO,count(*) 
+as wdone from BANKTRANSACTION where ttype='w' group by ACCNO )BANKtransaction))BANKtransaction)
 --4 ans
 select BANKMASTER.*,BRANCHS.* from BANKMASTER,BRANCHS where BRANCHS.BRANCHCODE=BANKMASTER.BRANCHCODE and BANKMASTER.BRANCHCODE in
 (select BRANCHCODE from BANKMASTER group by BRANCHCODE having sum(balance)>10000)
